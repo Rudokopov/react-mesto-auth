@@ -1,6 +1,6 @@
 {
   "name": "mesto",
-  "homepage": "https://rudokopov.github.io/mesto-react/",
+  "homepage": "https://rudokopov.github.io/react-mesto-auth/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
