@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
-import * as auth from "../utils/Auth";
+import AuthForm from "./AuthForm";
 
 function Authorization(props) {
   const navigate = useNavigate();
@@ -31,30 +31,13 @@ function Authorization(props) {
   return (
     <>
       <Header link={"/registration"} linkName={"Регистрация"} />
-      <div className="authorization__container">
-        <h2 className="authorization__title">Вход</h2>
-        <form className="authorization__form" onSubmit={handleSubmit}>
-          <fieldset className="authorization__top-fieldset">
-            <input
-              placeholder="Email"
-              className="authorization__input"
-              name="email"
-              type="email"
-              onChange={handleEmail}
-            />
-            <input
-              placeholder="Password"
-              className="authorization__input"
-              name="password"
-              type="password"
-              onChange={handlePassword}
-            />
-          </fieldset>
-          <button className="authorization__submit-button" type="submit">
-            Войти
-          </button>
-        </form>
-      </div>
+      <AuthForm
+        title="Вход"
+        buttonText="Войти"
+        handleSubmit={handleSubmit}
+        handleEmail={handleEmail}
+        handlePassword={handlePassword}
+      />
     </>
   );
 }

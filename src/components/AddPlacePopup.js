@@ -1,19 +1,32 @@
-import React, { useRef } from "react";
+import React, { useState, useEffect } from "react";
 import PopupWithForm from "./PopupWithForm";
 
 function AddPlacePopup(props) {
   const { isOpen, onClose, onAddCard } = props;
-  const iputNamePlaceRef = useRef();
-  const iputLinkPlaceRef = useRef();
+
+  const [name, setName] = useState("");
+  const [link, setLink] = useState("");
+
+  useEffect(() => {
+    setName("");
+    setLink("");
+  }, [isOpen]);
+
+  const handleName = (e) => {
+    setName(e.target.value);
+  };
+
+  const handleLink = (e) => {
+    setLink(e.target.value);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     onAddCard({
-      name: iputNamePlaceRef.current.value,
-      image: iputLinkPlaceRef.current.value,
+      name: name,
+      image: link,
     });
-    e.target.reset();
   };
 
   return (
@@ -27,7 +40,7 @@ function AddPlacePopup(props) {
     >
       <input
         name="name"
-        ref={iputNamePlaceRef}
+        onChange={handleName}
         placeholder="Название"
         required
         type="text"
@@ -39,7 +52,7 @@ function AddPlacePopup(props) {
       <span className="name-error error-message"></span>
       <input
         name="link"
-        ref={iputLinkPlaceRef}
+        onChange={handleLink}
         placeholder="Ссылка на картинку"
         required
         type="url"
