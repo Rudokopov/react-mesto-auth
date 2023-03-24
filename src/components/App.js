@@ -57,10 +57,10 @@ function App() {
         auth
           .getContent(jwt)
           .then((res) => {
-            if (res) {
+            auth.checkStatus(res).then(() => {
               setloggedIn(true);
               <Navigate to="/" replace={true} />;
-            }
+            });
           })
           .catch((err) => console.log(err));
       }
@@ -78,10 +78,12 @@ function App() {
         auth
           .getContent(jwt)
           .then((res) => {
-            if (res) {
-              setUserEmail(res.email);
-            }
-            return;
+            auth
+              .checkStatus(res)
+              .then((data) => {
+                setUserEmail(data.email);
+              })
+              .catch((err) => console.log(err));
           })
           .catch((err) => console.log(err));
       }
@@ -93,6 +95,45 @@ function App() {
     setloggedIn(false);
     setUserEmail("");
     <Navigate to="/login" replace={true} />;
+  };
+
+  const registration = (username, password, email, { navigate }) => {
+    auth
+      .register(username, password, email)
+      .then((res) => {
+        auth
+          .checkStatus(res)
+          .then(() => {
+            handleRequestSucessPopupOpen();
+            navigate("/login", { replace: true });
+          })
+          .catch(() => {
+            handleRequestBadPopupOpen();
+          });
+      })
+      .catch((err) => console.log(err));
+  };
+  const authorization = (username, password, email, { navigate }) => {
+    auth
+      .authorize(username, password, email)
+      .then((res) => {
+        auth
+          .checkStatus(res)
+          .then((data) => {
+            if (data.jwt) {
+              localStorage.setItem("jwt", data.jwt);
+              return data;
+            }
+          })
+          .then(() => {
+            handleLogin();
+            navigate("/", { replace: true });
+          })
+          .catch(() => {
+            handleRequestBadPopupOpen();
+          });
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleCardLike = (card) => {
@@ -226,6 +267,7 @@ function App() {
                       element={
                         <Authorization
                           handleLogin={handleLogin}
+                          authorization={authorization}
                           loggedIn={loggedIn}
                           errorPopup={handleRequestBadPopupOpen}
                         />
@@ -237,6 +279,7 @@ function App() {
                       path="/registration"
                       element={
                         <Registration
+                          registration={registration}
                           errorPopup={handleRequestBadPopupOpen}
                           sucessPopup={handleRequestSucessPopupOpen}
                         />

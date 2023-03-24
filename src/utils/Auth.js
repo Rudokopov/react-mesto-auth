@@ -1,6 +1,16 @@
 // auth.js
+// Немного запутался в реализации checkStatus с функциональными компонентами, это было непривычно после классовых в Api
+// Но не стал переписывать на классовые, а попытался сделать на функциональных, как мне кажется, выглядит топорно и сложно для восприятия
+// Хотя возможно потому что я впервые такое вижу :) Дайте пожалуйста фидбек по поводу такой реализации, основная логика запросов лежит в app.js
 
 export const BASE_URL = "https://api.nomoreparties.co";
+
+export const checkStatus = (res) => {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Что-то пошло не так: ${res.status}`);
+};
 
 export const register = (username, password, email) => {
   return fetch(`${BASE_URL}/auth/local/register`, {
@@ -10,21 +20,7 @@ export const register = (username, password, email) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ username, password, email }),
-  })
-    .then((response) => {
-      try {
-        if (response.status === 200) {
-          return response.json();
-        }
-      } catch (e) {
-        console.log("ашика");
-        return e;
-      }
-    })
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => console.log(err));
+  });
 };
 
 export const authorize = (identifier, password) => {
@@ -35,15 +31,7 @@ export const authorize = (identifier, password) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ identifier, password }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.jwt) {
-        localStorage.setItem("jwt", data.jwt);
-        return data;
-      }
-    })
-    .catch((err) => console.log(err));
+  });
 };
 
 export const getContent = (token) => {
@@ -54,7 +42,5 @@ export const getContent = (token) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-  })
-    .then((res) => res.json())
-    .then((data) => data);
+  });
 };

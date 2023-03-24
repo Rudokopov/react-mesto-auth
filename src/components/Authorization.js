@@ -5,7 +5,7 @@ import * as auth from "../utils/Auth";
 
 function Authorization(props) {
   const navigate = useNavigate();
-  const { handleLogin, errorPopup } = props;
+  const { authorization } = props;
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,15 +25,7 @@ function Authorization(props) {
     if (!email || !password) {
       return;
     }
-    auth
-      .authorize(username, password, email)
-      .then((data) => {
-        if (data.jwt) {
-          handleLogin();
-          navigate("/", { replace: true });
-        }
-      })
-      .catch(() => errorPopup());
+    authorization(username, password, email, { navigate });
   };
 
   return (

@@ -6,7 +6,7 @@ import * as auth from "../utils/Auth";
 
 function Registration(props) {
   const navigate = useNavigate();
-  const { errorPopup, sucessPopup } = props;
+  const { registration } = props;
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,20 +23,7 @@ function Registration(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email) {
-      auth
-        .register(username, password, email)
-        .then((res) => {
-          if (res === undefined) {
-            errorPopup();
-            return;
-          } else {
-            setEmail("");
-            setPassword("");
-            sucessPopup();
-            navigate("/login", { replace: true });
-          }
-        })
-        .catch((err) => console.log(err));
+      registration(username, password, email, { navigate });
     }
   };
 
