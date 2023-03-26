@@ -5,7 +5,7 @@ import AuthForm from "./AuthForm";
 
 function Registration(props) {
   const navigate = useNavigate();
-  const { registration } = props;
+  const { registration, loggedIn } = props;
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,17 +28,23 @@ function Registration(props) {
 
   return (
     <>
-      <Header link={"/login"} linkName={"Войти"} />
-      <AuthForm
-        title="Регистрация"
-        buttonText="Зарегистрироваться"
-        handleSubmit={handleSubmit}
-        handleEmail={handleEmail}
-        handlePassword={handlePassword}
-        description="Уже зарегестрированы?"
-        link="/login"
-        linkTitle="Войти"
-      />
+      {loggedIn ? (
+        navigate("/", { replace: true })
+      ) : (
+        <>
+          <Header link={"/login"} linkName={"Войти"} />
+          <AuthForm
+            title="Регистрация"
+            buttonText="Зарегистрироваться"
+            handleSubmit={handleSubmit}
+            handleEmail={handleEmail}
+            handlePassword={handlePassword}
+            description="Уже зарегестрированы?"
+            link="/login"
+            linkTitle="Войти"
+          />
+        </>
+      )}
     </>
   );
 }

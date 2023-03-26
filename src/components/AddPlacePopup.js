@@ -42,6 +42,7 @@ function AddPlacePopup(props) {
         name="name"
         onChange={handleName}
         placeholder="Название"
+        value={name || ""}
         required
         type="text"
         className="popup__form-input popup__form-place-name"
@@ -54,6 +55,7 @@ function AddPlacePopup(props) {
         name="link"
         onChange={handleLink}
         placeholder="Ссылка на картинку"
+        value={link || ""}
         required
         type="url"
         className="popup__form-input popup__form-place-link"

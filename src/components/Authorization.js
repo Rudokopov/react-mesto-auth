@@ -5,7 +5,7 @@ import AuthForm from "./AuthForm";
 
 function Authorization(props) {
   const navigate = useNavigate();
-  const { authorization } = props;
+  const { authorization, loggedIn } = props;
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

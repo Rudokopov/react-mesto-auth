@@ -10,7 +10,8 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvattarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import { EmailContext } from "../contexts/EmailContext";
-import { Route, Routes, BrowserRouter, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+
 import ProtectedRouteElement from "./ProtectedRoute";
 import Authorization from "./Authorization";
 import Registration from "./Registration";
@@ -22,7 +23,7 @@ import imageSucess from "../images/Icons/Sucess.png";
 import imageBad from "../images/Icons/Bad.png";
 
 function App() {
-  // Не забудь убрать, проверка на логин
+  const navigate = useNavigate();
   const [loggedIn, setloggedIn] = useState(false);
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAvatarPopupOpen, setAvatarPopupOpen] = useState(false);
@@ -36,16 +37,13 @@ function App() {
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
+    tokenCheck();
     Promise.all([api.getProfileInfo(), api.getInitialCards()])
       .then(([userData, cards]) => {
         setCurrentUser(userData);
         setCards(cards);
       })
       .catch((err) => console.log(err));
-  }, []);
-
-  useEffect(() => {
-    tokenCheck();
   }, []);
 
   const tokenCheck = () => {
@@ -56,11 +54,9 @@ function App() {
       if (jwt) {
         auth
           .getContent(jwt)
-          .then((res) => {
-            auth.checkStatus(res).then(() => {
-              setloggedIn(true);
-              <Navigate to="/" replace={true} />;
-            });
+          .then(() => {
+            setloggedIn(true);
+            navigate("/", { replace: true });
           })
           .catch((err) => console.log(err));
       }
@@ -78,12 +74,7 @@ function App() {
         auth
           .getContent(jwt)
           .then((res) => {
-            auth
-              .checkStatus(res)
-              .then((data) => {
-                setUserEmail(data.email);
-              })
-              .catch((err) => console.log(err));
+            setUserEmail(res.email);
           })
           .catch((err) => console.log(err));
       }
@@ -100,40 +91,25 @@ function App() {
   const registration = (username, password, email, { navigate }) => {
     auth
       .register(username, password, email)
-      .then((res) => {
-        auth
-          .checkStatus(res)
-          .then(() => {
-            handleRequestSucessPopupOpen();
-            navigate("/login", { replace: true });
-          })
-          .catch(() => {
-            handleRequestBadPopupOpen();
-          });
+      .then(() => {
+        handleRequestSucessPopupOpen();
+        navigate("/login", { replace: true });
       })
-      .catch((err) => console.log(err));
+      .catch(() => handleRequestBadPopupOpen());
   };
+
   const authorization = (username, password, email, { navigate }) => {
     auth
       .authorize(username, password, email)
-      .then((res) => {
-        auth
-          .checkStatus(res)
-          .then((data) => {
-            if (data.jwt) {
-              localStorage.setItem("jwt", data.jwt);
-              return data;
-            }
-          })
-          .then(() => {
-            handleLogin();
-            navigate("/", { replace: true });
-          })
-          .catch(() => {
-            handleRequestBadPopupOpen();
-          });
+      .then((data) => {
+        if (data.jwt) {
+          localStorage.setItem("jwt", data.jwt);
+          handleLogin();
+          navigate("/", { replace: true });
+        }
+        return;
       })
-      .catch((err) => console.log(err));
+      .catch(() => handleRequestBadPopupOpen());
   };
 
   const handleCardLike = (card) => {
@@ -241,88 +217,88 @@ function App() {
         <CurrentUserCardsContext.Provider value={cards}>
           <AppContext.Provider value={loggedIn}>
             <EmailContext.Provider value={userEmail}>
-              <BrowserRouter>
-                <Routes>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRouteElement
+                      onEditProfile={handleEditPopupOpen}
+                      onAvatarPopup={handleAvatarPopupOpen}
+                      onPlacePopup={handlePlacePopupOpen}
+                      onCardClick={(card) => handleCardClick(card)}
+                      onCardLike={handleCardLike}
+                      onCardDelete={handleCardDelete}
+                      cards={cards}
+                      currentUser={currentUser}
+                      email={userEmail}
+                      signOut={signOut}
+                      element={Main}
+                    />
+                  }
+                />
+                {!loggedIn && (
                   <Route
-                    path="/"
+                    path="/login"
                     element={
-                      <ProtectedRouteElement
-                        onEditProfile={handleEditPopupOpen}
-                        onAvatarPopup={handleAvatarPopupOpen}
-                        onPlacePopup={handlePlacePopupOpen}
-                        onCardClick={(card) => handleCardClick(card)}
-                        onCardLike={handleCardLike}
-                        onCardDelete={handleCardDelete}
-                        cards={cards}
-                        currentUser={currentUser}
-                        email={userEmail}
-                        signOut={signOut}
-                        element={Main}
+                      <Authorization
+                        handleLogin={handleLogin}
+                        authorization={authorization}
+                        loggedIn={loggedIn}
+                        errorPopup={handleRequestBadPopupOpen}
                       />
                     }
                   />
-                  {!loggedIn && (
-                    <Route
-                      path="/login"
-                      element={
-                        <Authorization
-                          handleLogin={handleLogin}
-                          authorization={authorization}
-                          loggedIn={loggedIn}
-                          errorPopup={handleRequestBadPopupOpen}
-                        />
-                      }
-                    />
-                  )}
-                  {!loggedIn && (
-                    <Route
-                      path="/registration"
-                      element={
-                        <Registration
-                          registration={registration}
-                          errorPopup={handleRequestBadPopupOpen}
-                          sucessPopup={handleRequestSucessPopupOpen}
-                        />
-                      }
-                    />
-                  )}
-                  <Route path="*" element={<PageNotFound404 />} />
-                </Routes>
-                <EditProfilePopup
-                  isOpen={isEditProfilePopupOpen}
-                  onClose={handleClosePopup}
-                  onUpdateUser={handleUpdateUser}
-                  currentUser={currentUser}
-                />
-                <EditAvattarPopup
-                  isOpen={isAvatarPopupOpen}
-                  onClose={handleClosePopup}
-                  onEditAvatar={handleAvatarChange}
-                />
-                <AddPlacePopup
-                  isOpen={isPlacePopupOpen}
-                  onClose={handleClosePopup}
-                  onAddCard={handleAddPlaceSubmit}
-                />
-                {loggedIn ? <Footer /> : ""}
-                <ImagePopup
-                  onClose={() => handleClosePopup({})}
-                  isOpen={selectedCard}
-                />
-                <RequestPopup
-                  isOpen={isRequestSucessPopupOpen}
-                  onClose={handleClosePopup}
-                  title="Вы успешно зарегистрировались!"
-                  image={imageSucess}
-                />
-                <RequestPopup
-                  isOpen={isRequestBadPopupOpen}
-                  onClose={handleClosePopup}
-                  title="Что-то пошло не так!
+                )}
+                {!loggedIn && (
+                  <Route
+                    path="/registration"
+                    element={
+                      <Registration
+                        loggedIn={loggedIn}
+                        registration={registration}
+                        errorPopup={handleRequestBadPopupOpen}
+                        sucessPopup={handleRequestSucessPopupOpen}
+                      />
+                    }
+                  />
+                )}
+
+                <Route path="*" element={<PageNotFound404 />} />
+              </Routes>
+              <EditProfilePopup
+                isOpen={isEditProfilePopupOpen}
+                onClose={handleClosePopup}
+                onUpdateUser={handleUpdateUser}
+                currentUser={currentUser}
+              />
+              <EditAvattarPopup
+                isOpen={isAvatarPopupOpen}
+                onClose={handleClosePopup}
+                onEditAvatar={handleAvatarChange}
+              />
+              <AddPlacePopup
+                isOpen={isPlacePopupOpen}
+                onClose={handleClosePopup}
+                onAddCard={handleAddPlaceSubmit}
+              />
+              {loggedIn ? <Footer /> : ""}
+              <ImagePopup
+                onClose={() => handleClosePopup({})}
+                isOpen={selectedCard}
+              />
+              <RequestPopup
+                isOpen={isRequestSucessPopupOpen}
+                onClose={handleClosePopup}
+                title="Вы успешно зарегистрировались!"
+                image={imageSucess}
+              />
+              <RequestPopup
+                isOpen={isRequestBadPopupOpen}
+                onClose={handleClosePopup}
+                title="Что-то пошло не так!
               Попробуйте ещё раз."
-                  image={imageBad}
-                />
-              </BrowserRouter>
+                image={imageBad}
+              />
             </EmailContext.Provider>
           </AppContext.Provider>
         </CurrentUserCardsContext.Provider>
