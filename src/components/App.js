@@ -109,7 +109,8 @@ function App() {
         }
         return;
       })
-      .catch(() => handleRequestBadPopupOpen());
+      // Не сразу понял что имелось ввиду, убрать попап об ошибке, думал по UX так будет удобнее)
+      .catch((err) => console.log(err));
   };
 
   const handleCardLike = (card) => {
