@@ -31,9 +31,14 @@ function AuthForm(props) {
             className="authorization__input"
             name="password"
             type="password"
-            minLength={4}
+            minLength={2}
             onChange={handlePassword}
           />
+          {/* {isErrorMessage && (
+            <span className="error-message">
+              Пароль не должен содержать русские символы
+            </span>
+          )} */}
         </fieldset>
         <button className="authorization__submit-button" type="submit">
           {buttonText}

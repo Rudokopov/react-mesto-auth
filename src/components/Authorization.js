@@ -5,18 +5,24 @@ import AuthForm from "./AuthForm";
 
 function Authorization(props) {
   const navigate = useNavigate();
-  const { authorization, loggedIn } = props;
+  const { authorization } = props;
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const filter = (e) => {
+    e.target.value = e.target.value.replace(/[а-я]/gi, "");
+  };
+
   const handleEmail = (e) => {
     setUsername(e.target.value);
     setEmail(e.target.value);
+    filter(e);
   };
 
   const handlePassword = (e) => {
     setPassword(e.target.value);
+    filter(e);
   };
 
   const handleSubmit = (e) => {

@@ -10,12 +10,18 @@ function Registration(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const filter = (e) => {
+    e.target.value = e.target.value.replace(/[а-я]/gi, "");
+  };
+
   const handleEmail = (e) => {
+    filter(e);
     setUsername(e.target.value);
     setEmail(e.target.value);
   };
 
   const handlePassword = (e) => {
+    filter(e);
     setPassword(e.target.value);
   };
 
