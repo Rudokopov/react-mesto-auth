@@ -6,7 +6,6 @@ import AuthForm from "./AuthForm";
 function Authorization(props) {
   const navigate = useNavigate();
   const { authorization } = props;
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,7 +14,6 @@ function Authorization(props) {
   };
 
   const handleEmail = (e) => {
-    setUsername(e.target.value);
     setEmail(e.target.value);
     filter(e);
   };
@@ -31,7 +29,7 @@ function Authorization(props) {
     if (!email || !password) {
       return;
     }
-    authorization(username, password, email, { navigate });
+    authorization(email, password, { navigate });
   };
 
   return (

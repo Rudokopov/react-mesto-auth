@@ -1,3 +1,5 @@
+const jwt = localStorage.getItem("jwt");
+
 class Api {
   constructor({ url, headers }) {
     this._url = url;
@@ -88,9 +90,9 @@ class Api {
 }
 
 const api = new Api({
-  url: "https://mesto.nomoreparties.co/v1/cohort-58",
+  url: "http://localhost:3000",
   headers: {
-    authorization: "0aba71cc-fce9-4c39-b3b0-8b4459f050db",
+    authorization: jwt,
     "Content-Type": "application/json",
   },
 });

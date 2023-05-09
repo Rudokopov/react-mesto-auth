@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { api } from "../utils/Api";
 import { AppContext } from "../contexts/AppContext";
 import Main from "./Main";
@@ -40,10 +40,14 @@ function App() {
     tokenCheck();
     Promise.all([api.getProfileInfo(), api.getInitialCards()])
       .then(([userData, cards]) => {
+        console.log(cards);
         setCurrentUser(userData);
         setCards(cards);
+        emailSetter(userData.email);
       })
       .catch((err) => console.log(err));
+
+    return;
   }, []);
 
   const tokenCheck = () => {
@@ -55,17 +59,13 @@ function App() {
         auth
           .getContent(jwt)
           .then(() => {
-            setloggedIn(true);
+            handleLogin();
             navigate("/", { replace: true });
           })
           .catch((err) => console.log(err));
       }
     }
   };
-
-  useEffect(() => {
-    emailSetter();
-  }, [loggedIn]);
 
   const emailSetter = () => {
     if (localStorage.getItem("jwt")) {
@@ -88,9 +88,9 @@ function App() {
     <Navigate to="/login" replace={true} />;
   };
 
-  const registration = (username, password, email, { navigate }) => {
+  const registration = (email, password, { navigate }) => {
     auth
-      .register(username, password, email)
+      .register(email, password)
       .then(() => {
         handleRequestSucessPopupOpen();
         navigate("/login", { replace: true });
@@ -98,18 +98,17 @@ function App() {
       .catch(() => handleRequestBadPopupOpen());
   };
 
-  const authorization = (username, password, email, { navigate }) => {
+  const authorization = (email, password, { navigate }) => {
     auth
-      .authorize(username, password, email)
+      .authorize(email, password)
       .then((data) => {
-        if (data.jwt) {
-          localStorage.setItem("jwt", data.jwt);
+        if (data.token) {
+          localStorage.setItem("jwt", data.token);
           handleLogin();
           navigate("/", { replace: true });
         }
         return;
       })
-      // Не сразу понял что имелось ввиду, убрать попап об ошибке, думал по UX так будет удобнее)
       .catch((err) => console.log(err));
   };
 
@@ -175,13 +174,13 @@ function App() {
       .catch((err) => console.log(err));
   };
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     setloggedIn(true);
-  };
+  }, []);
 
-  const handleCardClick = (card) => {
+  const handleCardClick = useCallback((card) => {
     setSelectedCard(card);
-  };
+  }, []);
 
   const handleEditPopupOpen = () => {
     setEditProfilePopupOpen(true);

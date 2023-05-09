@@ -1,6 +1,6 @@
 // auth.js
 
-export const BASE_URL = "https://api.nomoreparties.co";
+export const BASE_URL = "http://localhost:3000";
 
 export const checkStatus = (res) => {
   if (res.ok) {
@@ -13,25 +13,25 @@ export const request = (url, options) => {
   return fetch(url, options).then(checkStatus);
 };
 
-export const register = (username, password, email) => {
-  return request(`${BASE_URL}/auth/local/register`, {
+export const register = (email, password) => {
+  return request(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ username, password, email }),
+    body: JSON.stringify({ email, password }),
   });
 };
 
-export const authorize = (identifier, password) => {
-  return request(`${BASE_URL}/auth/local`, {
+export const authorize = (email, password) => {
+  return request(`${BASE_URL}/signin`, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ identifier, password }),
+    body: JSON.stringify({ email, password }),
   });
 };
 
