@@ -1,9 +1,8 @@
-const jwt = localStorage.getItem("jwt");
-
 class Api {
-  constructor({ url, headers }) {
-    this._url = url;
-    this._headers = headers;
+  constructor(options) {
+    this._jwt = options.jwt || "";
+    this._url = options.url || "";
+    this._headers = options.headers || {};
   }
 
   _checkStatus(res) {
@@ -15,6 +14,11 @@ class Api {
 
   _request(url, options) {
     return fetch(url, options).then(this._checkStatus);
+  }
+
+  updateAuthorization(jwt) {
+    this._jwt = jwt;
+    this._headers.authorization = jwt;
   }
 
   getMyUserId() {
@@ -90,9 +94,10 @@ class Api {
 }
 
 const api = new Api({
+  jwt: localStorage.getItem("jwt"),
   url: "http://localhost:3000",
   headers: {
-    authorization: jwt,
+    authorization: localStorage.getItem("jwt"),
     "Content-Type": "application/json",
   },
 });

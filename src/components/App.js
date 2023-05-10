@@ -38,46 +38,29 @@ function App() {
 
   useEffect(() => {
     tokenCheck();
-    Promise.all([api.getProfileInfo(), api.getInitialCards()])
-      .then(([userData, cards]) => {
-        console.log(cards);
-        setCurrentUser(userData);
-        setCards(cards);
-        emailSetter(userData.email);
-      })
-      .catch((err) => console.log(err));
-
-    return;
   }, []);
 
-  const tokenCheck = () => {
-    // если у пользователя есть токен в localStorage,
-    // эта функция проверит, действующий он или нет
-    if (localStorage.getItem("jwt")) {
-      const jwt = localStorage.getItem("jwt");
-      if (jwt) {
-        auth
-          .getContent(jwt)
-          .then(() => {
-            handleLogin();
-            navigate("/", { replace: true });
-          })
-          .catch((err) => console.log(err));
-      }
-    }
+  const requestUserData = () => {
+    Promise.all([api.getProfileInfo(), api.getInitialCards()])
+      .then(([userData, cards]) => {
+        setCurrentUser(userData);
+        setCards(cards);
+        setUserEmail(userData.email);
+      })
+      .catch((err) => console.log(err));
   };
 
-  const emailSetter = () => {
-    if (localStorage.getItem("jwt")) {
-      const jwt = localStorage.getItem("jwt");
-      if (jwt) {
-        auth
-          .getContent(jwt)
-          .then((res) => {
-            setUserEmail(res.email);
-          })
-          .catch((err) => console.log(err));
+  const tokenCheck = async () => {
+    const token = localStorage.getItem("jwt");
+    try {
+      if (token) {
+        handleLogin();
+        navigate("/", { replace: true });
+        api.updateAuthorization(token);
+        requestUserData(); // вызов функции для обновления данных
       }
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -88,28 +71,36 @@ function App() {
     <Navigate to="/login" replace={true} />;
   };
 
-  const registration = (email, password, { navigate }) => {
+  const registration = (email, password) => {
     auth
       .register(email, password)
       .then(() => {
         handleRequestSucessPopupOpen();
         navigate("/login", { replace: true });
       })
-      .catch(() => handleRequestBadPopupOpen());
+      .catch((err) => {
+        console.log(err.message);
+        handleRequestBadPopupOpen();
+      });
   };
 
-  const authorization = (email, password, { navigate }) => {
-    auth
-      .authorize(email, password)
-      .then((data) => {
-        if (data.token) {
-          localStorage.setItem("jwt", data.token);
-          handleLogin();
-          navigate("/", { replace: true });
-        }
-        return;
-      })
-      .catch((err) => console.log(err));
+  const authorization = async (email, password) => {
+    try {
+      await auth
+        .authorize(email, password)
+        .then((data) => {
+          if (data.token) {
+            localStorage.setItem("jwt", data.token);
+            handleLogin();
+            navigate("/", { replace: true });
+            tokenCheck();
+          }
+          return;
+        })
+        .catch((err) => console.log(err));
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   const handleCardLike = (card) => {

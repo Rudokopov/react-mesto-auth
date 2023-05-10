@@ -1,6 +1,8 @@
 import React from "react";
+import { useContext } from "react";
 import Card from "./Card";
 import Header from "./Header";
+import { CurrentUserCardsContext } from "../contexts/CurrentUserCardsContext";
 
 function Main({
   onEditProfile,
@@ -9,10 +11,10 @@ function Main({
   onCardClick,
   onCardLike,
   onCardDelete,
-  cards,
   currentUser,
   signOut,
 }) {
+  const cards = useContext(CurrentUserCardsContext);
   return (
     <>
       <Header signOut={signOut} />

@@ -28,7 +28,7 @@ function Registration(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email) {
-      registration(username, password, email, { navigate });
+      registration(email, password);
     }
   };
 
