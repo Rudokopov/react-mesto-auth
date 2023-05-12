@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
 function Card(props) {
@@ -8,19 +8,17 @@ function Card(props) {
   const isOwn = card.owner._id === currentUser._id || "";
   const isLiked = card.likes.some((i) => i._id === currentUser._id);
 
-  const handleLikeClick = () => {
-    onCardLike(card);
+  const handleDeleteClick = () => {
+    const id = card._id;
+    onCardDelete(id);
   };
 
-  const handleDeleteClick = () => {
-    // const id = card._id;
-    onCardDelete(card);
-  };
   return (
     <div className="card">
       <img
         className="card__image"
-        style={{ backgroundImage: `url(${card.link})` }}
+        alt={card.name}
+        src={card.link}
         onClick={() => onCardClick(card)}
       />
       <button
@@ -36,7 +34,7 @@ function Card(props) {
                 ? "card__heart-button card__heart-button_active"
                 : "card__heart-button"
             }`}
-            onClick={handleLikeClick}
+            onClick={() => onCardLike(card)}
           ></button>
           <span className="card__heart-count">{card.likes.length}</span>
         </div>

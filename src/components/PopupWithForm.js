@@ -6,9 +6,13 @@ function PopupWithForm({
   children,
   onClose,
   onSubmit,
+  closeByOverlay,
 }) {
   return (
-    <div className={isOpen ? `popup popup_opened` : `popup`}>
+    <div
+      className={isOpen ? `popup popup_opened` : `popup`}
+      onClick={closeByOverlay}
+    >
       <div className="popup__container">
         <h2 className="popup__form-title">{title}</h2>
         <button

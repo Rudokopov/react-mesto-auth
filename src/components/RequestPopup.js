@@ -1,7 +1,10 @@
 function RequestPopup(props) {
-  const { isOpen, title, onClose, image } = props;
+  const { isOpen, title, onClose, image, closeByOverlay } = props;
   return (
-    <div className={isOpen ? `popup popup_opened` : `popup`}>
+    <div
+      className={isOpen ? `popup popup_opened` : `popup`}
+      onClick={closeByOverlay}
+    >
       <div className="popup__container">
         <button
           type="button"

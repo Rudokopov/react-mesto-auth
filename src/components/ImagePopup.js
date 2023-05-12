@@ -1,6 +1,9 @@
-function ImagePopup({ onClose, isOpen }) {
+function ImagePopup({ onClose, isOpen, closeByOverlay }) {
   return (
-    <div className={isOpen.name ? `popup popup-image popup_opened` : `popup`}>
+    <div
+      className={isOpen.name ? `popup popup-image popup_opened` : `popup`}
+      onClick={closeByOverlay}
+    >
       <div className="popup-image__container">
         <button
           type="button"

@@ -1,33 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import PopupWithForm from "./PopupWithForm";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
 function EditProfilePopup(props) {
-  const { onClose, isOpen, onUpdateUser, currentUser } = props;
+  const { onClose, isOpen, onUpdateUser } = props;
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [description, setAbout] = useState("");
+  const userData = useContext(CurrentUserContext);
 
   useEffect(() => {
-    setName(currentUser.name);
-    setDescription(currentUser.about);
-  }, [currentUser, isOpen]);
+    setName(userData ? userData.name : "");
+    setAbout(userData ? userData.about : "");
+  }, [isOpen, userData]);
 
   const handleChangeName = (e) => {
     setName(e.target.value);
   };
 
   const handleChangeDescription = (e) => {
-    setDescription(e.target.value);
+    setAbout(e.target.value);
   };
 
   const handleSubmit = (e) => {
-    // Запрещаем браузеру переходить по адресу формы
     e.preventDefault();
+    onUpdateUser({ name, description });
 
-    // Передаём значения управляемых компонентов во внешний обработчик
-    onUpdateUser({
-      name,
-      description,
-    });
+    // const response = dispatch(fetchChangeProfile({ name, about }));
+    // if (response) {
+    //   onClose();
+    // }
+    // onUpdateUser({
+    //   name,
+    //   description,
+    // });
   };
 
   return (

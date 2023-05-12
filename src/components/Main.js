@@ -3,6 +3,8 @@ import { useContext } from "react";
 import Card from "./Card";
 import Header from "./Header";
 import { CurrentUserCardsContext } from "../contexts/CurrentUserCardsContext";
+import { LoadingContext } from "../contexts/LoadingContext";
+import Loaded from "./Loaded";
 
 function Main({
   onEditProfile,
@@ -15,8 +17,11 @@ function Main({
   signOut,
 }) {
   const cards = useContext(CurrentUserCardsContext);
+  const isLoading = useContext(LoadingContext);
+  const reverseCards = [...cards].reverse();
   return (
     <>
+      {isLoading && <Loaded />}
       <Header signOut={signOut} />
       <main className="content">
         <section className="profile">
@@ -50,7 +55,7 @@ function Main({
           ></button>
         </section>
         <section className="cards">
-          {cards.map((card) => (
+          {reverseCards.map((card) => (
             <Card
               key={card._id}
               card={card}
