@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import PopupWithForm from "./PopupWithForm";
 
-function AddPlacePopup(props) {
+type AddPlacePopupProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onAddCard: ({ name, image }: { name: string; image: string }) => void;
+};
+
+const AddPlacePopup: React.FC<AddPlacePopupProps> = (props) => {
   const { isOpen, onClose, onAddCard } = props;
 
   const [name, setName] = useState("");
@@ -47,8 +53,8 @@ function AddPlacePopup(props) {
         type="text"
         className="popup__form-input popup__form-place-name"
         id="name"
-        minLength="2"
-        maxLength="30"
+        minLength={2}
+        maxLength={30}
       />
       <span className="name-error error-message"></span>
       <input
@@ -64,6 +70,6 @@ function AddPlacePopup(props) {
       <span className="image-error error-message"></span>
     </PopupWithForm>
   );
-}
+};
 
 export default AddPlacePopup;
