@@ -1,7 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function AuthForm(props) {
+type AuthFormProps = {
+  title: string;
+  buttonText: string;
+  description?: string;
+  link?: string;
+  linkTitle?: string;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleEmail: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handlePassword: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+const AuthForm: React.FC<AuthFormProps> = (props) => {
   const {
     title,
     buttonText,
@@ -34,24 +45,21 @@ function AuthForm(props) {
             minLength={2}
             onChange={handlePassword}
           />
-          {/* {isErrorMessage && (
-            <span className="error-message">
-              Пароль не должен содержать русские символы
-            </span>
-          )} */}
         </fieldset>
         <button className="authorization__submit-button" type="submit">
           {buttonText}
         </button>
         <p className="authorization__description">
-          {description} {""}
-          <Link to={link} className="authorization__description-link">
-            {linkTitle}
-          </Link>
+          {description}
+          {link && (
+            <Link to={link} className="authorization__description-link">
+              {linkTitle}
+            </Link>
+          )}
         </p>
       </form>
     </div>
   );
-}
+};
 
 export default AuthForm;

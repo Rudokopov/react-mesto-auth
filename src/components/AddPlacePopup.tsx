@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import PopupWithForm from "./PopupWithForm";
+import { CardData } from "./App";
 
 type AddPlacePopupProps = {
   isOpen: boolean;
   onClose: () => void;
-  onAddCard: ({ name, image }: { name: string; image: string }) => void;
+  onAddCard: (name: string, image: string) => void;
 };
 
 const AddPlacePopup: React.FC<AddPlacePopupProps> = (props) => {
@@ -18,21 +19,18 @@ const AddPlacePopup: React.FC<AddPlacePopupProps> = (props) => {
     setLink("");
   }, [isOpen]);
 
-  const handleName = (e) => {
+  const handleName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
 
-  const handleLink = (e) => {
+  const handleLink = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLink(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    onAddCard({
-      name: name,
-      image: link,
-    });
+    onAddCard(name, link);
   };
 
   return (

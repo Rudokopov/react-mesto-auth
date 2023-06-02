@@ -21,7 +21,7 @@ import * as auth from "../utils/Auth";
 import imageSucess from "../images/Icons/Sucess.png";
 import imageBad from "../images/Icons/Bad.png";
 
-type CardOwner = {
+export type CardOwner = {
   about: string;
   avatar: string;
   cohort: string;
@@ -29,8 +29,7 @@ type CardOwner = {
   _id: string;
 };
 
-interface CardData {
-  createdAt: string;
+export interface CardData {
   likes: DataUser[];
   link: string;
   name: string;
@@ -38,7 +37,7 @@ interface CardData {
   _id: string;
 }
 
-interface DataUser {
+export interface DataUser {
   about: string;
   avatar: string;
   email: string;
@@ -60,9 +59,9 @@ const App: React.FC = () => {
   const [isRequestSucessPopupOpen, setRequestSucessPopupOpen] = useState(false);
   const [isRequestBadPopupOpen, setRequestBadPopupOpen] = useState(false);
 
-  const [selectedCard, setSelectedCard] = useState({});
+  const [selectedCard, setSelectedCard] = useState<CardData>();
   const [currentUser, setCurrentUser] = useState<DataUser>();
-  const [cards, setCards] = useState<CardData[]>([]);
+  const [cards, setCards] = useState<CardData[]>();
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
@@ -155,14 +154,14 @@ const App: React.FC = () => {
 
   const handleCardLike = (card: CardData) => {
     // Снова проверяем, есть ли уже лайк на этой карточке
-    const isLiked = card.likes.some((i) => i._id === currentUser?._id);
+    const isLiked = card?.likes?.some((i) => i._id === currentUser?._id);
     // Отправляем запрос в API и получаем обновлённые данные карточки
     if (!isLiked) {
       api
         .likeCard(card)
         .then((newCard: CardData) => {
           setCards((state) =>
-            state.map((c) => (c._id === card._id ? newCard : c))
+            state?.map((c) => (c._id === card._id ? newCard : c))
           );
           udpateCardsData();
         })
@@ -172,7 +171,7 @@ const App: React.FC = () => {
         .deleteLike(card)
         .then((newCard: CardData) => {
           setCards((state) =>
-            state.map((c) => (c._id === card._id ? newCard : c))
+            state?.map((c) => (c._id === card._id ? newCard : c))
           );
           udpateCardsData();
         })
@@ -180,15 +179,9 @@ const App: React.FC = () => {
     }
   };
 
-  const handleUpdateUser = ({
-    name,
-    description,
-  }: {
-    name: string;
-    description: string;
-  }) => {
+  const handleUpdateUser = (name: string, description: string) => {
     api
-      .changeProfileInfo({ name, description })
+      .changeProfileInfo(name, description)
       .then((state: DataUser) => {
         setCurrentUser(state);
         handleClosePopup();
@@ -200,14 +193,14 @@ const App: React.FC = () => {
     api
       .deleteCard(id)
       .then(() => {
-        setCards((prevCards) => prevCards.filter((card) => card._id !== id));
+        setCards((prevCards) => prevCards?.filter((card) => card._id !== id));
       })
       .catch((err: Error) => console.log(err));
   };
 
-  const handleAvatarChange = ({ imageAvatar }: { imageAvatar: string }) => {
+  const handleAvatarChange = (imageAvatar: string) => {
     api
-      .setNewAvatar({ imageAvatar })
+      .setNewAvatar(imageAvatar)
       .then((result: DataUser) => {
         setCurrentUser(result);
         handleClosePopup();
@@ -215,19 +208,18 @@ const App: React.FC = () => {
       .catch((err: Error) => console.log(err));
   };
 
-  const handleAddPlaceSubmit = useCallback(
-    ({ name, image }: { name: string; image: string }) => {
-      api
-        .addNewCard({ name, image })
-        .then((newCard: CardData) => {
+  const handleAddPlaceSubmit = useCallback((name: string, image: string) => {
+    api
+      .addNewCard(name, image)
+      .then((newCard: CardData) => {
+        if (cards) {
           setCards([newCard, ...cards]);
           udpateCardsData();
           handleClosePopup();
-        })
-        .catch((err: Error) => console.log(err));
-    },
-    []
-  );
+        }
+      })
+      .catch((err: Error) => console.log(err));
+  }, []);
 
   const handleLogin = useCallback(() => {
     setloggedIn(true);
@@ -258,7 +250,7 @@ const App: React.FC = () => {
   };
 
   const handleClosePopup = () => {
-    setSelectedCard({});
+    setSelectedCard(undefined);
     setAvatarPopupOpen(false);
     setEditProfilePopupOpen(false);
     setPlacePopupOpen(false);
@@ -268,103 +260,97 @@ const App: React.FC = () => {
 
   return (
     <>
-      <LoadingContext.Provider value={isLoading}>
-        <CurrentUserContext.Provider value={currentUser}>
-          <CurrentUserCardsContext.Provider value={cards}>
-            <AppContext.Provider value={loggedIn}>
-              <EmailContext.Provider value={userEmail}>
-                <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      <ProtectedRouteElement
-                        onEditProfile={handleEditPopupOpen}
-                        onAvatarPopup={handleAvatarPopupOpen}
-                        onPlacePopup={handlePlacePopupOpen}
-                        onCardClick={(card: CardData) => handleCardClick(card)}
-                        onCardLike={handleCardLike}
-                        onCardDelete={handleCardDelete}
-                        cards={cards}
-                        currentUser={currentUser}
-                        email={userEmail}
-                        signOut={signOut}
-                        element={Main}
+      {cards && currentUser && (
+        <LoadingContext.Provider value={isLoading}>
+          <CurrentUserContext.Provider value={currentUser}>
+            <CurrentUserCardsContext.Provider value={cards}>
+              <AppContext.Provider value={loggedIn}>
+                <EmailContext.Provider value={userEmail}>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <ProtectedRouteElement
+                          onEditProfile={handleEditPopupOpen}
+                          onAvatarPopup={handleAvatarPopupOpen}
+                          onPlacePopup={handlePlacePopupOpen}
+                          onCardClick={(card: CardData) =>
+                            handleCardClick(card)
+                          }
+                          onCardLike={handleCardLike}
+                          onCardDelete={handleCardDelete}
+                          cards={cards}
+                          currentUser={currentUser}
+                          email={userEmail}
+                          signOut={signOut}
+                          element={Main}
+                        />
+                      }
+                    />
+                    {!loggedIn && (
+                      <Route
+                        path="/login"
+                        element={
+                          <Authorization authorization={authorization} />
+                        }
                       />
-                    }
-                  />
-                  {!loggedIn && (
-                    <Route
-                      path="/login"
-                      element={
-                        <Authorization
-                          handleLogin={handleLogin}
-                          authorization={authorization}
-                          loggedIn={loggedIn}
-                          errorPopup={handleRequestBadPopupOpen}
-                        />
-                      }
-                    />
-                  )}
-                  {!loggedIn && (
-                    <Route
-                      path="/registration"
-                      element={
-                        <Registration
-                          loggedIn={loggedIn}
-                          registration={registration}
-                          errorPopup={handleRequestBadPopupOpen}
-                          sucessPopup={handleRequestSucessPopupOpen}
-                        />
-                      }
-                    />
-                  )}
+                    )}
+                    {!loggedIn && (
+                      <Route
+                        path="/registration"
+                        element={
+                          <Registration
+                            loggedIn={loggedIn}
+                            registration={registration}
+                          />
+                        }
+                      />
+                    )}
 
-                  <Route path="*" element={<PageNotFound404 />} />
-                </Routes>
-                <EditProfilePopup
-                  isOpen={isEditProfilePopupOpen}
-                  onClose={handleClosePopup}
-                  closeByOverlay={closeByOverlay}
-                  onUpdateUser={handleUpdateUser}
-                  currentUser={currentUser}
-                />
-                <EditAvattarPopup
-                  isOpen={isAvatarPopupOpen}
-                  closeByOverlay={closeByOverlay}
-                  onClose={handleClosePopup}
-                  onEditAvatar={handleAvatarChange}
-                />
-                <AddPlacePopup
-                  isOpen={isPlacePopupOpen}
-                  onClose={handleClosePopup}
-                  onAddCard={handleAddPlaceSubmit}
-                />
-                {loggedIn ? <Footer /> : ""}
-                <ImagePopup
-                  closeByOverlay={closeByOverlay}
-                  onClose={() => handleClosePopup()}
-                  isOpen={selectedCard}
-                />
-                <RequestPopup
-                  isOpen={isRequestSucessPopupOpen}
-                  closeByOverlay={closeByOverlay}
-                  onClose={handleClosePopup}
-                  title="Вы успешно зарегистрировались!"
-                  image={imageSucess}
-                />
-                <RequestPopup
-                  isOpen={isRequestBadPopupOpen}
-                  closeByOverlay={closeByOverlay}
-                  onClose={handleClosePopup}
-                  title="Что-то пошло не так!
+                    <Route path="*" element={<PageNotFound404 />} />
+                  </Routes>
+                  <EditProfilePopup
+                    isOpen={isEditProfilePopupOpen}
+                    onClose={handleClosePopup}
+                    onUpdateUser={handleUpdateUser}
+                  />
+                  <EditAvattarPopup
+                    isOpen={isAvatarPopupOpen}
+                    onClose={handleClosePopup}
+                    onEditAvatar={handleAvatarChange}
+                  />
+                  <AddPlacePopup
+                    isOpen={isPlacePopupOpen}
+                    onClose={handleClosePopup}
+                    onAddCard={handleAddPlaceSubmit}
+                  />
+                  {loggedIn ? <Footer /> : ""}
+                  <ImagePopup
+                    closeByOverlay={closeByOverlay}
+                    onClose={() => handleClosePopup()}
+                    selectedCard={selectedCard}
+                  />
+                  <RequestPopup
+                    isOpen={isRequestSucessPopupOpen}
+                    closeByOverlay={closeByOverlay}
+                    onClose={handleClosePopup}
+                    title="Вы успешно зарегистрировались!"
+                    image={imageSucess}
+                  />
+                  <RequestPopup
+                    isOpen={isRequestBadPopupOpen}
+                    closeByOverlay={closeByOverlay}
+                    onClose={handleClosePopup}
+                    title="Что-то пошло не так!
               Попробуйте ещё раз."
-                  image={imageBad}
-                />
-              </EmailContext.Provider>
-            </AppContext.Provider>
-          </CurrentUserCardsContext.Provider>
-        </CurrentUserContext.Provider>
-      </LoadingContext.Provider>
+                    image={imageBad}
+                  />
+                </EmailContext.Provider>
+              </AppContext.Provider>
+            </CurrentUserCardsContext.Provider>
+          </CurrentUserContext.Provider>
+        </LoadingContext.Provider>
+      )}
     </>
   );
 };

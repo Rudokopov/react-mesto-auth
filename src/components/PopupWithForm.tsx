@@ -1,4 +1,5 @@
 import React from "react";
+import { CardData } from "./App";
 
 type PopupWithFormProps = {
   title: string;
@@ -7,7 +8,7 @@ type PopupWithFormProps = {
   isOpen: boolean;
   children?: React.ReactNode;
   onClose: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   closeByOverlay?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 };
 
